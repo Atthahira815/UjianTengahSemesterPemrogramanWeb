@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Penjualan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #852e94; }
+        h1, h2 { color: #333; }
+        input, select, button { margin: 5px; padding: 8px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 5px 0; }
+        nav { background: #333; padding: 10px; }
+        nav a { color: white; margin: 10px; text-decoration: none; }
+        .section { background: rgb(201, 194, 194); padding: 20px; border-radius: 10px; margin: 20px auto; width: 80%; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#addProduct">Tambah Produk</a>
+        <a href="#addCustomer">Tambah Pelanggan</a>
+        <a href="#transaction">Transaksi</a>
+        <a href="#reports">Laporan</a>
+    </nav>
+
+    <div class="section">
+        <h1>Aplikasi Penjualan Toko Kelontong</h1>
+    </div>
+
+    <div class="section" id="addProduct">
+        <h2>Tambah Data Produk</h2>
+        <input type="text" id="productName" placeholder="Nama Produk">
+        <input type="number" id="productPrice" placeholder="Harga">
+        <button onclick="addProduct()">Tambah Produk</button>
+    </div>
+
+    <div class="section" id="addCustomer">
+        <h2>Tambah Data Pelanggan</h2>
+        <input type="text" id="customerName" placeholder="Nama Pelanggan">
+        <button onclick="addCustomer()">Tambah Pelanggan</button>
+    </div>
+
+    <div class="section" id="transaction">
+        <h2>Transaksi Penjualan</h2>
+        <select id="customerSelect"></select>
+        <select id="productSelect"></select>
+        <input type="number" id="quantity" placeholder="Jumlah">
+        <button onclick="addSale()">Tambah Penjualan</button>
+    </div>
+
+    <div class="section">
+        <h2>Pencarian Produk</h2>
+        <input type="text" id="searchProduct" placeholder="Cari Produk" oninput="searchProduct()">
+        <button onclick="addSale()">Cari Produk</button>
+    </div>
+
+    <div class="section" id="reports">
+        <h2>Laporan Produk</h2>
+        <table width="100%" border="1">
+            <tr>
+                <th>ID</th>
+                <th>Kategori</th>
+                <th>Jumlah Stok</th>
+                <th>Harga Jual</th>
+                <th>Merk</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Minuman</td>
+                <td>120 Pcs</td>
+                <td>1000</td>
+                <td>Kopikap</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Makanan</td>
+                <td>200 Pcs</td>
+                <td>3500</td>
+                <td>Mi Sedap Goreng</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Sembako</td>
+                <td>150 Butir</td>
+                <td>2000</td>
+                <td>Telur Ayam</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Sembako</td>
+                <td>50 Kg</td>
+                <td>18000</td>
+                <td>Beras Padang</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Minuman</td>
+                <td>50 Pcs</td>
+                <td>3500</td>
+                <td>Aqua 300ml</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section" id="salesReport">
+        <h2>Laporan Penjualan</h2>
+        <table width="100%" border="1">
+            <tr>
+                <th>ID Transaksi</th>
+                <th>Nama Pelanggan</th>
+                <th>Produk</th>
+                <th>Jumlah</th>
+                <th>Total Harga</th>
+                <th>Tanggal</th>
+            </tr>
+            <tr>
+                <td>001</td>
+                <td>Budi</td>
+                <td>Kopikap</td>
+                <td>2</td>
+                <td>2000</td>
+                <td>2024-03-26</td>
+            </tr>
+            <tr>
+                <td>002</td>
+                <td>Ani</td>
+                <td>Mi Sedap Goreng</td>
+                <td>5</td>
+                <td>17500</td>
+                <td>2024-03-26</td>
+            </tr>
+            <tr>
+                <td>003</td>
+                <td>Joko</td>
+                <td>Telur Ayam</td>
+                <td>10</td>
+                <td>20000</td>
+                <td>2024-03-26</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section" id="annualReport">
+        <h2>Rekapitulasi Penjualan Per Tahun</h2>
+        <table width="100%" border="1"id="annualReportTable">
+            <tr>
+                <th>Tahun</th>
+                <th>Total Penjualan</th>
+            </tr>
+            <tr>
+                <th>2024</th>
+                <th>39500</th>
+            </tr>
+        </table>
+    </div>
+    <script>
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let sales = JSON.parse(localStorage.getItem('sales')) || [];
+
+        function addProduct() {
+            let name = document.getElementById('productName').value;
+            let price = document.getElementById('productPrice').value;
+            if(name && price) {
+                products.push({ name, price, stock: 100 });
+                localStorage.setItem('products', JSON.stringify(products));
+                displayProducts();
+            }
+        }
+
+        function addCustomer() {
+            let name = document.getElementById('customerName').value;
+            if(name) {
+                customers.push(name);
+                localStorage.setItem('customers', JSON.stringify(customers));
+                displayCustomers();
+            }
+        }
+
+        function displayProducts() {
+            let select = document.getElementById('productSelect');
+            select.innerHTML = '';
+            products.forEach((product, index) => {
+                select.innerHTML += `<option value="${index}">${product.name} - Rp${product.price}</option>`;
+            });
+        }
+
+        function displayCustomers() {
+            let select = document.getElementById('customerSelect');
+            select.innerHTML = '';
+            customers.forEach((customer, index) => {
+                select.innerHTML += `<option value="${index}">${customer}</option>`;
+            });
+        }
+
+        function addSale() {
+            let customerIndex = document.getElementById('customerSelect').value;
+            let productIndex = document.getElementById('productSelect').value;
+            let quantity = document.getElementById('quantity').value;
+            if(customerIndex !== '' && productIndex !== '' && quantity) {
+                let product = products[productIndex];
+                if (product.stock >= quantity) {
+                    product.stock -= quantity;
+                    sales.push({ customer: customers[customerIndex], name: product.name, price: product.price, quantity });
+                    localStorage.setItem('sales', JSON.stringify(sales));
+                    localStorage.setItem('products', JSON.stringify(products));
+                    alert("Penjualan berhasil");
+                } else {
+                    alert("Stok tidak mencukupi");
+                }
+            }
+        }
+
+        function showStockReport() {
+            let report = document.getElementById('report');
+            report.innerHTML = '<h3>Laporan Stok Produk</h3>';
+            products.forEach(product => {
+                report.innerHTML += `<li>${product.name} - Stok: ${product.stock}</li>`;
+            });
+        }
+
+        function showSalesReport() {
+            let report = document.getElementById('report');
+            report.innerHTML = '<h3>Laporan Penjualan</h3>';
+            sales.forEach(sale => {
+                report.innerHTML += `<li>${sale.customer} membeli ${sale.quantity} x ${sale.name} - Rp${sale.price * sale.quantity}</li>`;
+            });
+        }
+
+        displayProducts();
+        displayCustomers();
+
+        function updateProductList() {
+            let productSelect = document.getElementById("productSelect");
+            productSelect.innerHTML = "";
+            products.forEach(p => {
+                let option = document.createElement("option");
+                option.value = p.name;
+                option.textContent = p.name;
+                productSelect.appendChild(option);
+            });
+        }
+
+        function updateCustomerList() {
+            let customerSelect = document.getElementById("customerSelect");
+            customerSelect.innerHTML = "";
+            customers.forEach(c => {
+                let option = document.createElement("option");
+                option.value = c;
+                option.textContent = c;
+                customerSelect.appendChild(option);
+            });
+        }
+
+        function updateSalesReport() {
+            let table = document.getElementById("salesTable");
+            table.innerHTML = "<tr><th>ID Transaksi</th><th>Nama Pelanggan</th><th>Produk</th><th>Jumlah</th><th>Total Harga</th><th>Tanggal</th></tr>";
+            sales.forEach((sale, index) => {
+                table.innerHTML += `<tr><td>${index + 1}</td><td>${sale.customer}</td><td>${sale.product}</td><td>${sale.quantity}</td><td>${sale.totalPrice}</td><td>${sale.date}</td></tr>`;
+            });
+        }
+
+        function updateAnnualReport() {
+            let report = {};
+            sales.forEach(sale => {
+                let year = sale.date.split("-")[0];
+                if (!report[year]) {
+                    report[year] = 0;
+                }
+                report[year] += sale.totalPrice;
+            });
+            
+            let table = document.getElementById("annualReportTable");
+            table.innerHTML = "<tr><th>Tahun</th><th>Total Penjualan</th></tr>";
+            for (let year in report) {
+                table.innerHTML += `<tr><td>${year}</td><td>Rp ${report[year]}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
