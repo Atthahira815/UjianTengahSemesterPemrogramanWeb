@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Penjualan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #94c8ff; }
+        h1, h2 { color: #333; }
+        input, select, button { margin: 5px; padding: 8px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 5px 0; }
+        nav { background: #333; padding: 10px; }
+        nav a { color: white; margin: 10px; text-decoration: none; }
+        .section { background: white; padding: 20px; border-radius: 10px; margin: 20px auto; width: 80%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+    <script>
+        let products = [];
+        let customers = [];
+        let sales = [];
+
+        function addProduct() {
+            let name = document.getElementById("productName").value;
+            let price = document.getElementById("productPrice").value;
+            if (name && price) {
+                products.push({ name, price });
+                updateProductList();
+                document.getElementById("productName").value = "";
+                document.getElementById("productPrice").value = "";
+            }
+        }
+
+        function addCustomer() {
+            let name = document.getElementById("customerName").value;
+            if (name) {
+                customers.push(name);
+                updateCustomerList();
+                document.getElementById("customerName").value = "";
+            }
+        }
+
+        function addSale() {
+            let customer = document.getElementById("customerSelect").value;
+            let product = document.getElementById("productSelect").value;
+            let quantity = document.getElementById("quantity").value;
+            if (customer && product && quantity) {
+                let productObj = products.find(p => p.name === product);
+                let totalPrice = productObj.price * quantity;
+                let date = new Date().toISOString().split('T')[0];
+                sales.push({ customer, product, quantity, totalPrice, date });
+                updateSalesReport();
+                updateAnnualReport();
+            }
+        }
+
+        function updateProductList() {
+            let productSelect = document.getElementById("productSelect");
+            productSelect.innerHTML = "";
+            products.forEach(p => {
+                let option = document.createElement("option");
+                option.value = p.name;
+                option.textContent = p.name;
+                productSelect.appendChild(option);
+            });
+        }
+
+        function updateCustomerList() {
+            let customerSelect = document.getElementById("customerSelect");
+            customerSelect.innerHTML = "";
+            customers.forEach(c => {
+                let option = document.createElement("option");
+                option.value = c;
+                option.textContent = c;
+                customerSelect.appendChild(option);
+            });
+        }
+
+        function updateSalesReport() {
+            let table = document.getElementById("salesTable");
+            table.innerHTML = "<tr><th>ID Transaksi</th><th>Nama Pelanggan</th><th>Produk</th><th>Jumlah</th><th>Total Harga</th><th>Tanggal</th></tr>";
+            sales.forEach((sale, index) => {
+                table.innerHTML += `<tr><td>${index + 1}</td><td>${sale.customer}</td><td>${sale.product}</td><td>${sale.quantity}</td><td>${sale.totalPrice}</td><td>${sale.date}</td></tr>`;
+            });
+        }
+
+        function updateAnnualReport() {
+            let report = {};
+            sales.forEach(sale => {
+                let year = sale.date.split("-")[0];
+                if (!report[year]) {
+                    report[year] = 0;
+                }
+                report[year] += sale.totalPrice;
+            });
+            
+            let table = document.getElementById("annualReportTable");
+            table.innerHTML = "<tr><th>Tahun</th><th>Total Penjualan</th></tr>";
+            for (let year in report) {
+                table.innerHTML += `<tr><td>${year}</td><td>Rp ${report[year]}</td></tr>`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <a href="#addProduct">Tambah Produk</a>
+        <a href="#addCustomer">Tambah Pelanggan</a>
+        <a href="#transaction">Transaksi</a>
+        <a href="#reports">Laporan</a>
+    </nav>
+
+    <div class="section" id="addProduct">
+        <h2>Tambah Data Produk</h2>
+        <input type="text" id="productName" placeholder="Nama Produk">
+        <input type="number" id="productPrice" placeholder="Harga">
+        <button onclick="addProduct()">Tambah Produk</button>
+    </div>
+
+    <div class="section" id="addCustomer">
+        <h2>Tambah Data Pelanggan</h2>
+        <input type="text" id="customerName" placeholder="Nama Pelanggan">
+        <button onclick="addCustomer()">Tambah Pelanggan</button>
+    </div>
+
+    <div class="section" id="transaction">
+        <h2>Transaksi Penjualan</h2>
+        <select id="customerSelect"></select>
+        <select id="productSelect"></select>
+        <input type="number" id="quantity" placeholder="Jumlah">
+        <button onclick="addSale()">Tambah Penjualan</button>
+    </div>
+
+    <div class="section">
+        <h2>Pencarian Produk</h2>
+        <input type="text" id="searchProduct" placeholder="Cari Produk">
+        <button onclick="searchProduct()">Cari</button>
+    </div>
+
+    <div class="section" id="salesReport">
+        <h2>Laporan Penjualan</h2>
+        <table id="salesTable">
+            <tr>
+                <th>ID Transaksi</th>
+                <th>Nama Pelanggan</th>
+                <th>Produk</th>
+                <th>Jumlah</th>
+                <th>Total Harga</th>
+                <th>Tanggal</th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section" id="annualReport">
+        <h2>Rekapitulasi Penjualan Per Tahun</h2>
+        <table id="annualReportTable">
+            <tr>
+                <th>Tahun</th>
+                <th>Total Penjualan</th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
